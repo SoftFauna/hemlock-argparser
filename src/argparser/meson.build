@@ -15,15 +15,26 @@ libhemlock_argparser = library(
   install : true,
 )
 
+libhemlock_argparser_dep = declare_dependency(
+  include_directories : libhemlock_argparser_public_includes,
+  link_with : libhemlock_argparser,
+)
+
 install_headers(
   'argparser.h', 
   subdir : 'hemlock_argparser',
 )
 
+pkg = import('pkgconfig')
+pkg.generate(
+  libraries : libhemlock_argparser_dep,
+  subdirs : [ '.', 'hemlock_argparser' ],
+  version : '0.1.0',
+  name : 'libhemlock_argparser',
+  filebase : 'hemlock_argparser',
+  description : 'Generic arguement parser.',
 
-libhemlock_argparser_dep = declare_dependency(
-  include_directories : libhemlock_argparser_public_includes,
-  link_with : libhemlock_argparser,
 )
+
 
 # end of file

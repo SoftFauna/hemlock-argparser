@@ -5,6 +5,7 @@ project(
   default_options : [
     'c_std=c11',
     'warning_level=3',
+    'default_library=both'
   ],
   license : 'MIT',
   license_files : [ 'LICENSE' ],
