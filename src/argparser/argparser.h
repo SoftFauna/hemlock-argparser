@@ -10,8 +10,24 @@ extern "C" {
 #endif
 /* code start */
 
+
 #include <stdbool.h>
 #include <stddef.h>
+
+/* handle windows msvc shenanigans */
+#if defined _WIN32 || defined __CYGWIN__
+#   ifdef LIB_HEMARG_EXPORTS
+#       define LIB_HEMARG_API __declspec(dllexport)
+#   else
+#       define LIB_HEMARG_API __declspec(dllimport)
+#   endif
+#else
+#   ifdef LIB_HEMARG_EXPORTS
+#       define LIB_HEMARG_API __attribute__ ((visibility ("default")))
+#   else
+#       define LIB_HEMARG_API
+#   endif
+#endif
 
 typedef enum
 {
@@ -58,10 +74,10 @@ typedef struct
 }
 
 
-int conarg_check (const conarg_t *defs, size_t n, int argc, char **argv, 
-                  conarg_status_t *status_out);
-char *conarg_get_param (int argc, char **argv);
-bool conarg_is_flag (char *arg);
+LIB_HEMARG_API int conarg_check (const conarg_t *defs, size_t n, int argc, 
+        char **argv, conarg_status_t *status_out);
+LIB_HEMARG_API char *conarg_get_param (int argc, char **argv);
+LIB_HEMARG_API bool conarg_is_flag (char *arg);
 
 
 /* code end */

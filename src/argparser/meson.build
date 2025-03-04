@@ -9,6 +9,9 @@ libhemlock_argparser = library(
   [ 'argparser.c', ],
   version : '0.1.0',
   soversion : '0',
+  c_args: [
+    '-DLIB_HEMARG_EXPORTS',
+  ],
 )
 
 libhemlock_argparser_dep = declare_dependency(
