@@ -9,120 +9,91 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void print_help (FILE *output);
+static void log_usage (FILE *output, copt_t *opts, size_t opt_cnt);
+static void log_version (FILE *output);
+
+static int usage_cb (copt_t *opts, size_t opt_cnt, void *data);
+static int version_cb (copt_t *opts, size_t opt_cnt, void *data);
+
+static int 
+usage_cb (copt_t *opts, size_t opt_cnt, void *data)
+{
+    log_usage (stdout, opts, opt_cnt);
+    exit (EXIT_SUCCESS);
+}
+
+
+static int 
+version_cb (copt_t *opts, size_t opt_cnt, void *data)
+{
+    log_version (stdout);
+    exit (EXIT_SUCCESS);
+}
 
 int
 main (int argc, char **argv)
 {
-    const enum
+    char *infile = "default infile";
+    char *outfile = "default outfile";
+    char *dest = "default destination";
+    int index = 0x100;
+    int verbose = 1;
+
+    const copt_t OPTS[] =
     {
-        ARG_INFILE = CONARG_ID_CUSTOM,
-        ARG_OUTFILE,
-        ARG_VERBOSE,
-        ARG_TERSE,
-        ARG_HELP,
-        ARG_VERSION,
+        {  0,  "infile",    INPUT_STR, &infile,  "file to read from." },
+        { 'o', "outfile",   INPUT_STR, &outfile, "file to write to." },
+        { 'd', NULL,        INPUT_STR, &dest,    "file to write to x2." },
+        { 'i', "--index",   INPUT_INT, &index,   "overwrite automotic indexing." },
+        { 'v', "--verbose", FLAG_T,    &verbose, "log extra messages." },
+        {  0,  "--terse",   FLAG_F,    &verbose, "log warnings and errors." },
+        { 'h', "--help",    CALLBACK,  usage_cb,   "show this page." },
+        { 'V', "--version", CALLBACK,  version_cb, "show the version/copyright page." },
     };
-
-    const conarg_t ARG_LIST[] =
+    const size_t OPT_CNT = sizeof (OPTS) / sizeof (*OPTS);
+   
+    int rc = copt_parser (OPTS, OPT_CNT, argv, argc, NULL);
+    if (rc != argc)
     {
-        { ARG_INFILE,  NULL, "infile",  CONARG_PARAM_REQUIRED },
-        { ARG_OUTFILE, NULL, "outfile", CONARG_PARAM_REQUIRED },
-        { ARG_VERBOSE, "-v", "--verbose", CONARG_PARAM_NONE },
-        { ARG_TERSE,   "-t", "--terse",   CONARG_PARAM_NONE },
-        { ARG_HELP,    "-h", "--help",    CONARG_PARAM_NONE },
-        { ARG_VERSION, "-V", "--version", CONARG_PARAM_NONE },
-    };
-    const size_t ARG_COUNT = sizeof (ARG_LIST) / sizeof (*ARG_LIST);
-    
-    conarg_status_t param_stat = CONARG_STATUS_NA;
-    int id = 0;
-
-    bool verbose = false;
-    char *infile = NULL;
-    char *outfile = NULL;
-
-    /* skip executable name */
-    CONARG_STEP (argc, argv);
-
-    /* get arguements */
-    while (argc > 0)
-    {
-        /* parse the current *argv */
-        id = conarg_check (ARG_LIST, ARG_COUNT, argc, argv, &param_stat);
-
-        /* preform diff actions based on result */
-        switch (id)
-        {
-        case ARG_INFILE:
-            CONARG_STEP (argc, argv);
-            infile = conarg_get_param (argc, argv);
-            break;
-
-        case ARG_OUTFILE:
-            CONARG_STEP (argc, argv);
-            outfile = conarg_get_param (argc, argv);
-            break;
-
-        case ARG_VERBOSE:
-            verbose = true;
-            break;
-
-        case ARG_TERSE:
-            verbose = false;
-            break;
-
-        case ARG_HELP:
-            print_help (stdout);
-            exit (EXIT_SUCCESS);
-
-        case ARG_VERSION:
-            (void)fprintf (stdout, "print version page\n");
-            exit (EXIT_SUCCESS);
-
-        case CONARG_ID_PARAM_ERROR:
-            (void)fprintf (stderr, "error: the '%s' arguement expects a parameter\n", *argv);
-            print_help (stderr);
-            exit (EXIT_FAILURE);
-
-        case CONARG_ID_UNKNOWN:
-            (void)fprintf (stderr, "error: unknown arguement '%s'\n", *argv);
-            print_help (stderr);
-            exit (EXIT_FAILURE);
-
-        default:
-            (void)fprintf (stderr, "error: unknown\n");
-            print_help (stderr);
-            exit (EXIT_FAILURE);
-        } /* switch-case */
-        
-        /* iterate over argc/argv */
-        CONARG_STEP (argc, argv);
-
-    } /* while loop */
+        log_usage (stderr, OPTS, OPT_CNT);
+    }
 
     (void)fprintf (stdout, "results:\n");
+    (void)fprintf (stdout, "  rc:      %d\n", rc);
     (void)fprintf (stdout, "  infile:  '%s'\n", infile);
     (void)fprintf (stdout, "  outfile: '%s'\n", outfile);
+    (void)fprintf (stdout, "  dest:    '%s'\n", dest);
+    (void)fprintf (stdout, "  index:   %d\n", index);
     (void)fprintf (stdout, "  verbose: %d\n", verbose);
 
     exit (EXIT_SUCCESS);
 }
 
 
+
+
+
+
 static void 
-print_help (FILE *output)
+log_usage (FILE *output, copt_t *opts, size_t opt_cnt)
 {
-    fprintf (output, 
+    char *printable_opts = copt_printable_opts (opts, opt_cnt);
+    
+    (void)fprintf (output, 
         "usage: argparser_ex <options>\n"
+        "\n"
         "options:\n"
-        "  infile <file>\n"
-        "  outfile <file>\n"
-        "  -v, --verbose\n"
-        "  -t, --terse\n"
-        "  -h, --help\n"
-        "  -V, --version\n"
-    );
+        "%s\n"
+        "\n"
+        "moreinfo here\n",
+        printable_opts);
+}
+
+
+static void 
+log_version (FILE *output)
+{
+    (void)fprintf (output, "version info\n");
 }
 
 
