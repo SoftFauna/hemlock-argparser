@@ -1,6 +1,13 @@
 
 # build the static lib
-add_library(hemlock-argparser STATIC argparser/argparser.c)
+add_library(hemlock-argparser STATIC 
+        argparser/argparser.c
+        argparser/finish.c
+        argparser/log.c
+        argparser/parser.c
+        argparser/tokenizer.c
+        argparser/validate.c
+)
 target_compile_definitions(hemlock-argparser PRIVATE LIB_HEMARG_EXPORTS)
 
 # build the example executable
