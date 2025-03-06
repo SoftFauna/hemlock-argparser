@@ -28,7 +28,7 @@ struct tokenizer
     size_t alloc;
 }; 
 
-int tokenize (struct tokenizer *self, char **argv, size_t argc, copt_t *opt_arr, size_t opt_cnt);
+int tokenize (struct tokenizer *self, char **argv, size_t argc, copt_t *opt_arr, size_t opt_cnt, void *cb_data);
 
 int add_token (struct tokenizer *self, struct token token);
 void destroy_tokenizer (struct tokenizer *self);

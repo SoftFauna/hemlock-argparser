@@ -2,6 +2,7 @@
 #include "finish.h"
 
 #include "debug_trace.h"
+#include "log.h"
 #include "option.h"
 #include "tokenizer.h"
 
@@ -52,11 +53,10 @@ finish (struct tokenizer *self, copt_t *opt_arr, size_t opt_cnt, void *cb_data)
             break;
 
         case CALLBACK:
-            rc = opt->m.cb_fn (opt_arr, opt_cnt, cb_data);
-            if (rc != 0)
-            {
-                return -1;
-            }
+            /* callbacks are executed as they are found (in the tokenizer),
+             * previously they were handled here, however to work around 
+             * executing --help as it is reached, aswell as to apply colours 
+             * to error reports, it was moved to execute as they are found. */
             break;
 
         default:

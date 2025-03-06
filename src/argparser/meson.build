@@ -11,6 +11,7 @@ libhemlock_argparser = library(
     'finish.c',
     'log.c',
     'parser.c',
+    'pretty.c',
     'tokenizer.c',
     'validate.c',
   ]),

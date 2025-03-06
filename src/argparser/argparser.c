@@ -3,6 +3,7 @@
 
 #include "debug_trace.h"
 #include "finish.h"
+#include "pretty.h"
 #include "tokenizer.h"
 #include "validate.h"
 
@@ -19,8 +20,14 @@ copt_parser (copt_t *opt_arr, size_t opt_cnt, char **argv, size_t argc,
 
     TRACE_FN ();
 
+    /* if no arguements are given report an error */
+    if (argc == 0)
+    {
+        return -1;
+    }
+
     /* if any of the following step fail, set returncode to a fail stats */
-    if ((tokenize (&tokens, argv, argc, opt_arr, opt_cnt)) || 
+    if ((tokenize (&tokens, argv, argc, opt_arr, opt_cnt, cb_data)) || 
         (validate (&tokens)) ||
         (finish (&tokens, opt_arr, opt_cnt, cb_data)))
     {
@@ -30,6 +37,29 @@ copt_parser (copt_t *opt_arr, size_t opt_cnt, char **argv, size_t argc,
     /* clean up memeory */
     destroy_tokenizer (&tokens);
     return rc;
+}
+
+
+int 
+copt_enable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
+{
+    pretty_print_enable ();    
+    return 0;
+}
+
+
+int
+copt_disable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
+{
+    pretty_print_disable ();    
+    return 0;
+}
+
+
+int 
+copt_are_colors_enabled (void)
+{
+    return g_pretty_print;
 }
 
 char *
