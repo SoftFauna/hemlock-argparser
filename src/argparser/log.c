@@ -7,6 +7,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 
 /* PUBLIC API */
@@ -64,8 +65,15 @@ log_unknown_short_option (char short_opt)
 void
 log_unknown_long_option (char *long_opt)
 {
+    char *opt_param_start = NULL;
+    int opt_length = 0;
+
     TRACE_FN ();
-    (void)fprintf (stderr, "error: unknown option '%s'.\n", long_opt);
+
+    opt_param_start = strchr (long_opt, '=');
+    opt_length = (int)(opt_param_start - long_opt);
+
+    (void)fprintf (stderr, "error: unknown option '%.*s'.\n", opt_length, long_opt);
 }
 
 
@@ -94,4 +102,22 @@ log_invalid_parameter_type (struct token *p_token)
 }
 
 
+void
+log_useless_parameter (struct token *p_token)
+{
+    TRACE_FN ();
+    (void)fprintf (stderr, 
+            "error: option '%s' does not take any parameters, but got '%s'.\n",
+            get_option_name (p_token), 
+            p_token->argv_param);
+}
+
+void
+log_fatal_unknown_type (copt_type_t type)
+{
+    TRACE_FN ();
+    (void)fprintf (stderr, 
+            "fatal error: malformed option array, unknown parameter type %d\n",
+            type);
+}
 /* end of file */

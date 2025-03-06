@@ -60,9 +60,7 @@ finish (struct tokenizer *self, copt_t *opt_arr, size_t opt_cnt, void *cb_data)
             break;
 
         default:
-            /* error bad option type */
-            (void)fprintf (stderr, "fatal error: finish(): bad return type %d\n", 
-                           opt->type);
+            log_fatal_unknown_type (opt->type);
             return -1;
         }
         iter++;

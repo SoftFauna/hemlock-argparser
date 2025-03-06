@@ -73,18 +73,45 @@ copt_t *
 get_long_option (char *cursor, copt_t *opt_arr, size_t opt_cnt)
 {
     size_t opt_length = 0;
+    size_t cursor_length = 0;
     
     TRACE_FN ();
+
+    cursor_length = strlen (cursor);
 
     for (; opt_cnt > 0; opt_cnt--, opt_arr++)
     {
         /* skip cases where an long opt is not given */
         if (opt_arr->long_opt == NULL) { continue; }
 
-        /* if a match is found return a poitner */
+        /* if the cursor length is smaller than the option length, they cannot
+         * match */
         opt_length = strlen (opt_arr->long_opt);
+        if (cursor_length < opt_length)
+        {
+            TRACE_FN ();
+            continue;
+        }
+
+        /* for long options that do not take a parameter, the NULL terminator 
+         * must be in the same place in the cursor as it is in the option. 
+         * such that the option and the cursor match exactly with no trailing 
+         * characters */
+        /* except, in cases where the option does take a paramter. in such 
+         * cases, the cursor may optionally be suffixed by an equal sign to 
+         * denote the start of a parameter input */
+        /* if neither of case is met, skip the option. */
+        if (!((cursor[opt_length] == '\0') || 
+              (cursor[opt_length] == '=')))
+        {
+            TRACE_FN ();
+            continue;
+        }
+
+        /* check that the option is a match */
         if (strncmp (cursor, opt_arr->long_opt, opt_length) == 0)
         {
+            TRACE_FN ();
             return opt_arr;
         }
     }
@@ -195,6 +222,15 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
         /* skip "get parameter" section if none is required */
         if (!takes_parameter (opt_match->type))
         {
+            /* error if a parameter was added despite not being required */
+            if (*iter == '=')
+            {
+                token.argv_param = iter + 1;
+                log_useless_parameter (&token);
+                destroy_tokenizer (self);
+                return -1;
+            }
+
             /* if no parameter is required, we can add the option now */
             add_token (self, token);
             continue;
