@@ -41,22 +41,18 @@ main (int argc, char **argv)
 
     const copt_t OPTS[] =
     {
-        {  0,  "infile",    INPUT_STR, &infile,  "file to read from." },
-        { 'o', "outfile",   INPUT_STR, &outfile, "file to write to." },
-        { 'd', NULL,        INPUT_STR, &dest,    "file to write to x2." },
-        { 'i', "--index",   INPUT_INT, &index,   "overwrite automotic indexing." },
-        { 'v', "--verbose", FLAG_T,    &verbose, "log extra messages." },
-        {  0,  "--terse",   FLAG_F,    &verbose, "log warnings and errors." },
-        { 'h', "--help",    CALLBACK,  usage_cb,   "show this page." },
-        { 'V', "--version", CALLBACK,  version_cb, "show the version/copyright page." },
+        {  0,  "infile",    INPUT_STR, { &infile },    "file to read from." },
+        { 'o', "outfile",   INPUT_STR, { &outfile },   "file to write to." },
+        { 'd', NULL,        INPUT_STR, { &dest },      "file to write to x2." },
+        { 'i', "--index",   INPUT_INT, { &index },     "overwrite automotic indexing." },
+        { 'v', "--verbose", FLAG_T,    { &verbose },   "log extra messages." },
+        {  0,  "--terse",   FLAG_F,    { &verbose },   "log warnings and errors." },
+        { 'h', "--help",    CALLBACK,  { usage_cb },   "show this page." },
+        { 'V', "--version", CALLBACK,  { version_cb }, "show the version/copyright page." },
     };
     const size_t OPT_CNT = sizeof (OPTS) / sizeof (*OPTS);
    
-    int rc = copt_parser (OPTS, OPT_CNT, argv, argc, NULL);
-    if (rc != argc)
-    {
-        log_usage (stderr, OPTS, OPT_CNT);
-    }
+    int rc = copt_parser ((copt_t *)OPTS, OPT_CNT, argv+1, argc-1, NULL);
 
     (void)fprintf (stdout, "results:\n");
     (void)fprintf (stdout, "  rc:      %d\n", rc);

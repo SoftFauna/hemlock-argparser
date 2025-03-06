@@ -1,6 +1,7 @@
 
 #include "parser.h"
 
+#include "debug_trace.h"
 #include "option.h"
 
 
@@ -8,6 +9,7 @@
 int 
 takes_parameter (copt_type_t type)
 {
+    TRACE_FN ();
     switch (type)
     {
     case INPUT_INT:

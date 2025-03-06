@@ -5,7 +5,8 @@
 #include "tokenizer.h"
 
 
-void log_unknown_option (char *argv_opt);
+void log_unknown_short_option (char argv_opt);
+void log_unknown_long_option (char *long_opt);
 void log_missing_parameter (struct token *p_token);
 void log_invalid_parameter_type (struct token *p_token);
 

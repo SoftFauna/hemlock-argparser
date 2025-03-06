@@ -1,9 +1,10 @@
 
 #include "argparser.h"
 
+#include "debug_trace.h"
+#include "finish.h"
 #include "tokenizer.h"
 #include "validate.h"
-#include "finish.h"
 
 #include <stddef.h>
 

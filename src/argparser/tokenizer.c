@@ -1,6 +1,7 @@
 
 #include "tokenizer.h"
 
+#include "debug_trace.h"
 #include "log.h"
 #include "option.h"
 #include "parser.h"
@@ -19,6 +20,7 @@ add_token (struct tokenizer *self, struct token token)
     size_t tmp_size = 0;
     void *tmp = NULL;
 
+    TRACE_FN ();
     /* if tokenizer is not setup */
     if (self->token_arr == NULL)
     {
@@ -46,6 +48,8 @@ add_token (struct tokenizer *self, struct token token)
     /* add token to array */
     self->token_arr[self->count] = token;
 
+    self->count++;
+
     return 0;
 }
 
@@ -53,6 +57,7 @@ add_token (struct tokenizer *self, struct token token)
 void
 destroy_tokenizer (struct tokenizer *self)
 {
+    TRACE_FN ();
     if (self == NULL) { return; }
 
     free (self->token_arr);
@@ -67,20 +72,21 @@ destroy_tokenizer (struct tokenizer *self)
 copt_t *
 get_long_option (char *cursor, copt_t *opt_arr, size_t opt_cnt)
 {
-    while (opt_cnt > 0)
+    size_t opt_length = 0;
+    
+    TRACE_FN ();
+
+    for (; opt_cnt > 0; opt_cnt--, opt_arr++)
     {
         /* skip cases where an long opt is not given */
         if (opt_arr->long_opt == NULL) { continue; }
 
         /* if a match is found return a poitner */
-        if (strcmp (cursor, opt_arr->long_opt) == 0)
+        opt_length = strlen (opt_arr->long_opt);
+        if (strncmp (cursor, opt_arr->long_opt, opt_length) == 0)
         {
             return opt_arr;
         }
-
-        /* increment along options */
-        opt_cnt--;
-        opt_arr++;
     }
 
     /* otherwise return NULL */
@@ -91,6 +97,8 @@ get_long_option (char *cursor, copt_t *opt_arr, size_t opt_cnt)
 copt_t *
 get_short_option (char character, copt_t *opt_arr, size_t opt_cnt)
 {
+    TRACE_FN ();
+
     for (; opt_cnt > 0; opt_cnt--, opt_arr++)
     {
         /* skip cases where a short is not given */
@@ -118,6 +126,7 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
     struct token token = { 0 };
     copt_t *opt_match = NULL;
 
+    TRACE_FN ();
 
     while (arr_index < argc)
     {
@@ -138,7 +147,7 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
             /* move cursor just after the option */
             iter += strlen (token.opt->long_opt);
         }
-        else if (*iter == '-')
+        else if ((*iter == '-') && (*(iter+1) != '-'))
         {
             /* check for short options */
             iter++;
@@ -149,7 +158,8 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
                 /* if no option is found, fall throught to no option found */
                 if (opt_match == NULL)
                 {
-                    break;
+                    log_unknown_short_option (*iter);
+                    return -1;
                 }
 
                 /* add short options */
@@ -177,7 +187,7 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
         if (opt_match == NULL)
         {
             /* unknown option */
-            log_unknown_option (iter);
+            log_unknown_long_option (iter);
             destroy_tokenizer (self);
             return -1;
         }
@@ -185,6 +195,8 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
         /* skip "get parameter" section if none is required */
         if (!takes_parameter (opt_match->type))
         {
+            /* if no parameter is required, we can add the option now */
+            add_token (self, token);
             continue;
         }
 
@@ -194,9 +206,10 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
             iter++;
         }
         else if ((*iter == '\0') &&
-                 (arr_index <= argc))
+                 (arr_index < argc))
         {
             iter = argv[arr_index];
+            arr_index++;
         }
         else
         {

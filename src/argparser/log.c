@@ -1,6 +1,7 @@
 
 #include "log.h"
 
+#include "debug_trace.h"
 #include "option.h"
 #include "tokenizer.h"
 
@@ -53,17 +54,27 @@ get_option_name (struct token *p_token)
 
 
 void
-log_unknown_option (char *argv_opt)
+log_unknown_short_option (char short_opt)
 {
-    (void)fprintf (stderr, "error: unknown option '%s'.\n", argv_opt);
+    TRACE_FN ();
+    (void)fprintf (stderr, "error: unknown option '-%c'.\n", short_opt);
+}
+
+
+void
+log_unknown_long_option (char *long_opt)
+{
+    TRACE_FN ();
+    (void)fprintf (stderr, "error: unknown option '%s'.\n", long_opt);
 }
 
 
 void
 log_missing_parameter (struct token *p_token)
 {
+    TRACE_FN ();
     (void)fprintf (stderr, 
-            "error: option '%s' expects a parameter of type %s, but none was "
+            "error: option '%s' expects a parameter of type <%s>, but none was "
             "given.\n",
             get_option_name (p_token), 
             get_parameter_type_name (p_token->opt->type));
@@ -73,9 +84,10 @@ log_missing_parameter (struct token *p_token)
 void
 log_invalid_parameter_type (struct token *p_token)
 {
+    TRACE_FN ();
     (void)fprintf (stderr, 
-            "error: option '%s' expects a parameter of type %s, but got "
-            "parameter, '%s'.",
+            "error: option '%s' expects a parameter of type <%s>, but got "
+            "parameter '%s'.\n",
             get_option_name (p_token), 
             get_parameter_type_name (p_token->opt->type),
             p_token->argv_param);

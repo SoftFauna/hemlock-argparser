@@ -2,11 +2,13 @@
 
 #include "validate.h"
 
+#include "debug_trace.h"
 #include "log.h"
 #include "option.h"
 #include "parser.h"
 #include "tokenizer.h"
 
+#include <limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,6 +29,7 @@ validate (struct tokenizer *self)
 
     int valid = 1;
     
+    TRACE_FN ();
 
     for (; i < self->count; i++)
     {
@@ -43,11 +46,11 @@ validate (struct tokenizer *self)
         switch (p_opt->type)
         {
         case INPUT_INT:
-            valid = is_valid_int (p_token->argv_param);                        
+            valid = is_valid_int (p_token->argv_param);
             break;
 
         case INPUT_STR:
-            valid = is_valid_str (p_token->argv_param);                        
+            valid = is_valid_str (p_token->argv_param);
             break;
 
         default:
@@ -71,6 +74,7 @@ validate (struct tokenizer *self)
 int 
 is_valid_str (char *maybe_str)
 {
+    TRACE_FN ();
     return (maybe_str != NULL);
 }
 
@@ -80,14 +84,14 @@ is_valid_int (char *maybe_int)
 {
     char *remainder = NULL;
     long result_long = 0;
-    int result_int = 0;
 
+    TRACE_FN ();
     /* try converting using strtol */
     result_long = strtol (maybe_int, &remainder, 0);
 
     /* if the whole string was proccessed */
     if ((remainder == NULL) ||
-        (remainder != '\0'))
+        (*remainder != '\0'))
     {
         return 0;
     }
@@ -98,6 +102,7 @@ is_valid_int (char *maybe_int)
     {
         return 0;
     }
+    
 
     /* if all guards are passed, then it is valid */
     return 1;

@@ -1,6 +1,7 @@
 
 #include "finish.h"
 
+#include "debug_trace.h"
 #include "option.h"
 #include "tokenizer.h"
 
