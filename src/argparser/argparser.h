@@ -3,6 +3,7 @@
 
 #include "option.h"
 
+#include <stdio.h>
 #include <stddef.h>
 
 /* handle windows msvc shenanigans */
@@ -23,7 +24,7 @@
 /* api */
 LIB_HEMARG_API int copt_parser (copt_t *opt_arr, size_t opt_cnt, char **argv, size_t argc, void *cb_data);
 
-LIB_HEMARG_API char *copt_printable_opts (copt_t *opt_arr, size_t opt_cnt);
+LIB_HEMARG_API void copt_print_options (FILE *output, copt_t *opt_arr, size_t opt_cnt);
 
 LIB_HEMARG_API int copt_enable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data);
 LIB_HEMARG_API int copt_disable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data);

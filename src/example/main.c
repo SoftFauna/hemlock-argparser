@@ -48,6 +48,9 @@ main (int argc, char **argv)
         { 'd', NULL,        INPUT_STR, { &dest },      "file to write to x2." },
         { 'i', "--index",   INPUT_INT, { &index },     "overwrite automotic indexing." },
         { 'v', "--verbose", FLAG_T,    { &verbose },   "log extra messages." },
+        {  0, "--this-is-too-long-to-be-reasonable", FLAG_T,    { &verbose },   "log extra messages." },
+        {  0, "--this-is-also-too-long-to-be-reasonable", FLAG_T,    { &verbose },   "log extra messages and do about 999999999999999999999999 other things but we dont care about any of them, we are just looking for a really long line to test how wrapping text works with the parser." },
+        {  0, "---reasonable", FLAG_T,    { &verbose },   "log extra messages and do about 999999999999999999999999 other things but we dont care about any of them, we are just looking for a really long line to test how wrapping text works with the parser." },
         {  0,  "--terse",   FLAG_F,    { &verbose },   "log warnings and errors." },
         {  0,  "--color",   CALLBACK,  { copt_enable_colors_cb },  "enable pretty colours!" },
         {  0,  "--nocolor", CALLBACK,  { copt_disable_colors_cb }, "dont use any colours." },
@@ -56,7 +59,6 @@ main (int argc, char **argv)
         {  0,  "--bad-type", 0x100,    { &badtype },   "this should throw a fatal error" },
     };
     const size_t OPT_CNT = sizeof (OPTS) / sizeof (*OPTS);
-   
     int rc = 0;
 
     rc = copt_parser ((copt_t *)OPTS, OPT_CNT, argv+1, argc-1, NULL);
@@ -86,16 +88,18 @@ main (int argc, char **argv)
 static void 
 log_usage (FILE *output, copt_t *opts, size_t opt_cnt)
 {
-    char *printable_opts = copt_printable_opts (opts, opt_cnt);
     
     (void)fprintf (output, 
         "usage: argparser_ex <options>\n"
         "\n"
-        "options:\n"
-        "%s\n"
+        "options:\n");
+
+    copt_print_options (output, opts, opt_cnt);
+
+    (void)fprintf (output,
         "\n"
-        "moreinfo here\n",
-        printable_opts);
+        "issues: https://github.com/SoftFauna/hemlock-argparser.git\n"
+        "contact: sage.message@email.com\n");
 }
 
 

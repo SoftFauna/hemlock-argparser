@@ -9,6 +9,7 @@ libhemlock_argparser = library(
   files([ 
     'argparser.c',
     'finish.c',
+    'genhelp.c',
     'log.c',
     'parser.c',
     'pretty.c',

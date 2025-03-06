@@ -3,11 +3,13 @@
 
 #include "debug_trace.h"
 #include "finish.h"
+#include "genhelp.h"
 #include "pretty.h"
 #include "tokenizer.h"
 #include "validate.h"
 
 #include <stddef.h>
+#include <stdio.h>
 
 
 /* PUBLIC API */
@@ -62,11 +64,11 @@ copt_are_colors_enabled (void)
     return g_pretty_print;
 }
 
-char *
-copt_printable_opts (copt_t *opt_arr, size_t opt_cnt)
+void
+copt_print_options (FILE *output, copt_t *opt_arr, size_t opt_cnt)
 {
     TRACE_FN ();
-    return NULL;
+    genhelp_test (output, opt_arr, opt_cnt);
 }
 
 
