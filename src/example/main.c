@@ -91,7 +91,7 @@ log_usage (FILE *output, copt_t *opts, size_t opt_cnt)
     char *usage_options = copt_print_options (opts, opt_cnt);
 
     (void)fprintf (output, 
-        "usage: argparser_ex <options>\n"
+        "usage: hemlock_argparser_ex <options>\n"
         "Demonstration program for hemlock-argparser version 0.2.0\n"
         "\n"
         "options:\n"
