@@ -7,6 +7,6 @@
 #include <stddef.h>
 
 
-void genhelp_test (FILE *output, copt_t *opt_arr, size_t opt_cnt);
+char *genhelp (copt_t *opt_arr, size_t opt_cnt);
 
 /* end of file */

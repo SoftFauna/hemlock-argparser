@@ -1,4 +1,6 @@
 
+cc = meson.get_compiler('c')
+m_dep = cc.find_library('m', required : false)
 
 libhemlock_argparser_public_includes = [
   './',
@@ -20,6 +22,10 @@ libhemlock_argparser = library(
   soversion : '0',
   c_args: [
     '-DLIB_HEMARG_EXPORTS',
+    #'-DWE_TRACIN',
+  ],
+  dependencies : [
+    m_dep,
   ],
   install : true,
 )

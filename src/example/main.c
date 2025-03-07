@@ -88,18 +88,19 @@ main (int argc, char **argv)
 static void 
 log_usage (FILE *output, copt_t *opts, size_t opt_cnt)
 {
-    
+    char *usage_options = copt_print_options (opts, opt_cnt);
+
     (void)fprintf (output, 
         "usage: argparser_ex <options>\n"
+        "Demonstration program for hemlock-argparser version 0.2.0\n"
         "\n"
-        "options:\n");
-
-    copt_print_options (output, opts, opt_cnt);
-
-    (void)fprintf (output,
+        "options:\n"
+        "%s"
         "\n"
         "issues: https://github.com/SoftFauna/hemlock-argparser.git\n"
-        "contact: sage.message@email.com\n");
+        "contact: sage.message@email.com\n",
+        usage_options
+    );
 }
 
 

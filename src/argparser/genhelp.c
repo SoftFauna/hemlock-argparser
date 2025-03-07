@@ -5,6 +5,7 @@
 #include "parser.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <math.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -15,9 +16,32 @@
 static float calculate_mean (int *arr, size_t n);
 static float *calculate_standard_deviation (int *arr, size_t n);
 static int max_without_outlier (int *arr, size_t n, float filter);
-static int snprintf_option (char *buf, size_t n, copt_t *src);
+static int softwrap (char *src, size_t hard_max);
+static int *generate_option_len_array (copt_t *arr, size_t n);
+
+static int snprintf_description (char *buf, size_t buf_n, char *desc, int current_col, int base_col);
+static int snprintf_option (char *buf, size_t buf_n, copt_t *src);
+static int snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt);
 
 
+
+
+/* PUBLIC API */
+char *
+genhelp (copt_t *opt_arr, size_t opt_cnt)
+{
+    size_t size = 0;
+    char *usage = NULL;
+
+    size = snprintf_usage (NULL, 0, opt_arr, opt_cnt);
+    usage = malloc (size);
+    (void)snprintf_usage (usage, size, opt_arr, opt_cnt);
+
+    return usage;
+}
+
+
+/* PRIVATG FILE-STATIC */
 static float
 calculate_mean (int *arr, size_t n)
 {
@@ -101,7 +125,60 @@ max_without_outlier (int *arr, size_t n, float filter)
 
 
 static int
-snprintf_option (char *buf, size_t n, copt_t *src)
+softwrap (char *src, size_t hard_max)
+{
+    char *iter = 0;
+    size_t i = 0;
+    size_t length = 0;
+    
+    TRACE_FN ();
+
+    if (src == NULL) { return 0; }
+    
+    length = strlen (src);
+    if (length <= hard_max)
+    {
+        return length;
+    }
+    
+    iter = &src[hard_max];
+    for (i = hard_max; i > 0; i--)
+    {
+        if (*iter == ' ')
+        {
+            return i;
+        }
+
+        iter--;
+    }
+
+    return (int)hard_max;
+}
+
+
+
+static int *
+generate_option_len_array (copt_t *arr, size_t n)
+{
+    size_t i = 0;
+    int *result = NULL;
+
+    TRACE_FN ();
+
+    result = malloc (sizeof (*result) * n);
+
+    for (i = 0; i < n; i++)
+    {
+        result[i] = snprintf_option (NULL, 0, &arr[i]);
+    }
+
+    return result;
+}
+
+
+
+static int
+snprintf_option (char *buf, size_t buf_n, copt_t *opt_arr)
 {
     /* "  -s, --long-flag=<parameter>"*/
     const char *fmt_s   = "  -%c";
@@ -131,19 +208,19 @@ snprintf_option (char *buf, size_t n, copt_t *src)
         MODE_LP  = (                 MODE_HAS_LONG | MODE_HAS_PARAM),
         MODE_L   = (                 MODE_HAS_LONG),
     };
-    
+        
     TRACE_FN ();
 
-    if (takes_parameter (src->type))
+    if (takes_parameter (opt_arr->type))
     {
         mode |= MODE_HAS_PARAM;
-        param_name = get_parameter_type_name (src->type);
+        param_name = get_parameter_type_name (opt_arr->type);
     }
-    if (src->long_opt != NULL)
+    if (opt_arr->long_opt != NULL)
     {
         mode |= MODE_HAS_LONG;
     }
-    if (src->short_opt != 0)
+    if (opt_arr->short_opt != 0)
     {
         mode |= MODE_HAS_SHORT;
     }
@@ -151,17 +228,17 @@ snprintf_option (char *buf, size_t n, copt_t *src)
     switch (mode)
     {
     case MODE_SLP:
-        return snprintf (buf, n, fmt_slp, src->short_opt, src->long_opt, param_name);
+        return snprintf (buf, buf_n, fmt_slp, opt_arr->short_opt, opt_arr->long_opt, param_name);
     case MODE_SL:
-        return snprintf (buf, n, fmt_sl, src->short_opt, src->long_opt);
+        return snprintf (buf, buf_n, fmt_sl, opt_arr->short_opt, opt_arr->long_opt);
     case MODE_S:
-        return snprintf (buf, n, fmt_s, src->short_opt);
+        return snprintf (buf, buf_n, fmt_s, opt_arr->short_opt);
     case MODE_SP:
-        return snprintf (buf, n, fmt_sp, src->short_opt, param_name);
+        return snprintf (buf, buf_n, fmt_sp, opt_arr->short_opt, param_name);
     case MODE_LP:
-        return snprintf (buf, n, fmt_lp, src->long_opt, param_name);
+        return snprintf (buf, buf_n, fmt_lp, opt_arr->long_opt, param_name);
     case MODE_L:
-        return snprintf (buf, n, fmt_l, src->long_opt);
+        return snprintf (buf, buf_n, fmt_l, opt_arr->long_opt);
     default:
         /* error */
         return 0;
@@ -169,43 +246,84 @@ snprintf_option (char *buf, size_t n, copt_t *src)
 }
 
 
-
-
-
-
-static int *
-generate_option_len_array (copt_t *arr, size_t n)
+static int
+snprintf_description (char *buf, size_t buf_n, char *desc, int current_col, 
+                      int base_col)
 {
-    size_t i = 0;
-    int *result = NULL;
+    const int MAX_COL = 80;
+    const int NEWLINE_INDENT = 2;
+
+    char  *buf_iter      = buf;
+    int    buf_remaining = buf_n;
+    size_t total_written = 0;
+
+    int desc_start_col = base_col;
+
+    char  *iter = desc;
+    size_t total_read  = 0;
+    size_t desc_length = 0; 
 
     TRACE_FN ();
 
-    result = malloc (sizeof (*result) * n);
+    desc_length = strlen (desc);
 
-    for (i = 0; i < n; i++)
+    if (current_col >= desc_start_col)
     {
-        result[i] = snprintf_option (NULL, 0, &arr[i]);
+        total_written++;
+        if (buf_iter != NULL) 
+        { 
+            *buf_iter = '\n'; 
+            buf_iter++;
+        }
+        current_col = 0;
     }
 
-    return result;
+    while (total_read < desc_length)
+    {
+        int padding_cols   = desc_start_col - current_col;
+        int remaining_cols = MAX_COL - desc_start_col;
+
+        int print_n_cols = softwrap (iter, remaining_cols);
+        int result_n = snprintf (buf_iter, buf_remaining, "%*s%.*s\n", 
+                padding_cols, "",
+                print_n_cols, iter);
+
+        total_written += result_n;
+        total_read    += print_n_cols;
+        iter += print_n_cols;
+
+        while (isspace (*iter)) 
+        {
+            iter++;
+            total_read++;
+        }
+
+        current_col = 0;
+
+        desc_start_col = base_col + NEWLINE_INDENT;
+
+        if (buf_iter == NULL) { continue; }
+        buf_iter += result_n;
+        buf_remaining -= result_n;
+    }
+
+    return (int)total_written;
 }
 
 
-/* PUBLIC API */
-void
-genhelp_test (FILE *output, copt_t *opt_arr, size_t opt_cnt)
+static int
+snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt)
 {
     const float MAX_DEVIATION = 100.0f;
-    const int WRAP_WIDTH = 80;
+    const int POST_OPTION_PADDING = 4;
 
     size_t i = 0;
     int *len_arr = NULL;
     int max_col = 0;
     
-    void *tmp = NULL;
-    char *buf = NULL;
-    size_t buf_n = 0;
+    size_t total = 0;
+    size_t option_length = 0;
+    size_t description_length = 0;
 
     TRACE_FN ();
    
@@ -220,142 +338,33 @@ genhelp_test (FILE *output, copt_t *opt_arr, size_t opt_cnt)
     len_arr = generate_option_len_array (opt_arr, opt_cnt);
     max_col = max_without_outlier (len_arr, opt_cnt, (float)MAX_DEVIATION);
 
-    TRACE_FN ();
     for (i = 0; i < opt_cnt; i++)
     {
-        /* extend buffer if need be */
-        if (buf == NULL)
+        /* get the print options */
+        option_length = snprintf_option (buf, buf_n, &opt_arr[i]);
+        if (buf != NULL)
         {
-            buf = malloc (len_arr[i] + 1);
-            if (buf == NULL) { goto exit; }
-            buf_n = len_arr[i];
-        }
-        while (len_arr[i] >= buf_n)
-        {
-            tmp = realloc (buf, (buf_n * 2) + 1);
-            if (tmp == NULL) { goto exit; }
-            buf = tmp;
-            buf_n *= 2;
+            buf += option_length;
         }
 
-        TRACE_FN ();
-        /* print option */
-        (void)snprintf_option (buf, (int)buf_n, &opt_arr[i]);
-        (void)fprintf (output, "%s", buf);
+        /* and the descriptions */
+        description_length = snprintf_description (buf, buf_n, opt_arr[i].desc, 
+                option_length, (max_col + POST_OPTION_PADDING));
+        if (buf != NULL)
+        {
+            buf += description_length;
+        }
 
-        print_description ();
+        /* and update the total */
+        total += option_length + description_length;
     }
-
-exit:
-    free (buf);
-    buf = NULL;
-    buf_n = 0;
 
     free (len_arr);
     len_arr = NULL;
-
-    return;
-}
-
-
-static int
-test (char *buf, size_t n, char *desc, int current_col, int desc_start_col)
-{
-    const int MAX_COL = 80;
-    const int MAX_DESC_START = 40;
-
-    char *buf_iter = buf;
-    char *iter = desc;
-    int length = 0;
-    int rc = 0;
-
+    total++;
     
-
-    int softwrap_len = 0;
-
-    /* softwrap the first line */
-    softwrap_len = softwrap (desc, (MAX_COL - current_col));
-    rc = snprintf (buf_iter, n, "%*s%.*s\n", 
-            (desc_start_col - current_col), "",
-            (softwrap_len), iter);
-    if (rc == -1) { return 0; }
-    length += rc;
-
-    /* move the buffer iterator along */
-    if (buf_iter != NULL)
-    {
-        buf_iter += length;
-    }
-
-    /* softwrap the remaining lines */
-    for ()
-
-    
-
-
+    return total;
 }
-
-static void
-print_description (FILE *output, int opt_len, int align_col, const int WRAP_WIDTH)
-{
-    const int MIN_DESCRIPTION_WIDTH = WRAP_WIDTH / 2;
-    const int OPTION_PADDING = 4; /* characters after option */
-    const int WRAP_PADDING = 2;   /* indent after description newline */
-
-    int max_col = align_col + 4;
-    int desc_width = 0;
-    int desc_wrap_width = 0;
-    size_t desc_len = 0;
-
-    int align_col = 0;
-    int align_wrap_col = 0;
-
-    int printed_n = 0;
-    int rc = 0;
-
-
-    align_col = max_col + OPTION_PADDING;
-    align_wrap_col = align_col + WRAP_PADDING;
-
-    desc_width = WRAP_WIDTH - align_col;
-    desc_wrap_width = WRAP_WIDTH - align_wrap_col;
-
-        TRACE_FN ();
-
-        /* add padding to first line of description */
-        if (opt_len > max_col)
-        {
-            (void)fprintf (output, "\n");
-            (void)fprintf (output, "%*s", align_col, "");
-            TRACE_FN ();
-        }
-        else
-        {
-            (void)fprintf (output, "%*s", (align_col - len_arr[i]), "");
-            TRACE_FN ();
-        }
-
-        /* print the description's first line */
-        desc_len = strlen (opt_arr[i].desc);
-        rc = fprintf (output, "%.*s\n", desc_width, opt_arr[i].desc); 
-
-        TRACE_FN ();
-        /* print all trailing description lines */
-        for (printed_n = rc; printed_n < desc_len; )
-        {
-            /* line the print up for the wraped line */
-            (void)fprintf (output, "%*s", align_wrap_col, "");
-
-            TRACE_FN ();
-            /* print the next section */
-            rc = fprintf (output, "%.*s\n", desc_wrap_width, (opt_arr[i].desc + printed_n));
-            assert (rc != -1);
-            printed_n += rc;
-            TRACE_FN ();
-        }
-
-
-
 
 
 /* end of file */

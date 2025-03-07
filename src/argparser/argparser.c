@@ -45,6 +45,7 @@ copt_parser (copt_t *opt_arr, size_t opt_cnt, char **argv, size_t argc,
 int 
 copt_enable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
 {
+    TRACE_FN ();
     pretty_print_enable ();    
     return 0;
 }
@@ -53,6 +54,7 @@ copt_enable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
 int
 copt_disable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
 {
+    TRACE_FN ();
     pretty_print_disable ();    
     return 0;
 }
@@ -61,14 +63,15 @@ copt_disable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
 int 
 copt_are_colors_enabled (void)
 {
+    TRACE_FN ();
     return g_pretty_print;
 }
 
-void
-copt_print_options (FILE *output, copt_t *opt_arr, size_t opt_cnt)
+char *
+copt_print_options (copt_t *opt_arr, size_t opt_cnt)
 {
     TRACE_FN ();
-    genhelp_test (output, opt_arr, opt_cnt);
+    return genhelp (opt_arr, opt_cnt);
 }
 
 

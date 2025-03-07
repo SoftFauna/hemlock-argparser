@@ -24,7 +24,7 @@
 /* api */
 LIB_HEMARG_API int copt_parser (copt_t *opt_arr, size_t opt_cnt, char **argv, size_t argc, void *cb_data);
 
-LIB_HEMARG_API void copt_print_options (FILE *output, copt_t *opt_arr, size_t opt_cnt);
+LIB_HEMARG_API char *copt_print_options (copt_t *opt_arr, size_t opt_cnt);
 
 LIB_HEMARG_API int copt_enable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data);
 LIB_HEMARG_API int copt_disable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data);
