@@ -14,7 +14,7 @@ mkdir build
 cd build
 cmake ..
 cmake --build .
-./src/argparser_ex
+./src/hemlock_argparser_ex
 ~~~
 
 ### Meson build
