@@ -138,7 +138,7 @@ softwrap (char *src, size_t hard_max)
     length = strlen (src);
     if (length <= hard_max)
     {
-        return length;
+        return (int)length;
     }
     
     iter = &src[hard_max];
@@ -146,7 +146,7 @@ softwrap (char *src, size_t hard_max)
     {
         if (*iter == ' ')
         {
-            return i;
+            return (int)i;
         }
 
         iter--;
@@ -254,7 +254,7 @@ snprintf_description (char *buf, size_t buf_n, char *desc, int current_col,
     const int NEWLINE_INDENT = 2;
 
     char  *buf_iter      = buf;
-    int    buf_remaining = buf_n;
+    size_t buf_remaining = buf_n;
     size_t total_written = 0;
 
     int desc_start_col = base_col;
@@ -349,7 +349,7 @@ snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt)
 
         /* and the descriptions */
         description_length = snprintf_description (buf, buf_n, opt_arr[i].desc, 
-                option_length, (max_col + POST_OPTION_PADDING));
+                (int)option_length, (int)(max_col + POST_OPTION_PADDING));
         if (buf != NULL)
         {
             buf += description_length;
@@ -363,7 +363,7 @@ snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt)
     len_arr = NULL;
     total++;
     
-    return total;
+    return (int)total;
 }
 
 

@@ -13,9 +13,8 @@
 
 /* PUBLIC API */
 int
-finish (struct tokenizer *self, copt_t *opt_arr, size_t opt_cnt, void *cb_data)
+finish (struct tokenizer *self)
 {
-    int rc = 0;
     size_t i = 0;
     struct token *iter = NULL;
     copt_t *opt = NULL;

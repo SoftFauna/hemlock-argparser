@@ -6,6 +6,7 @@
 #include "genhelp.h"
 #include "pretty.h"
 #include "tokenizer.h"
+#include "unused_param.h"
 #include "validate.h"
 
 #include <stddef.h>
@@ -31,7 +32,7 @@ copt_parser (copt_t *opt_arr, size_t opt_cnt, char **argv, size_t argc,
     /* if any of the following step fail, set returncode to a fail stats */
     if ((tokenize (&tokens, argv, argc, opt_arr, opt_cnt, cb_data)) || 
         (validate (&tokens)) ||
-        (finish (&tokens, opt_arr, opt_cnt, cb_data)))
+        (finish (&tokens)))
     {
         rc = -1;
     }
@@ -46,6 +47,9 @@ int
 copt_enable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
 {
     TRACE_FN ();
+    CB_UNUSED_PARAM (opt_arr);
+    CB_UNUSED_PARAM (opt_cnt);
+    CB_UNUSED_PARAM (cb_data);
     pretty_print_enable ();    
     return 0;
 }
@@ -55,6 +59,9 @@ int
 copt_disable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
 {
     TRACE_FN ();
+    CB_UNUSED_PARAM (opt_arr);
+    CB_UNUSED_PARAM (opt_cnt);
+    CB_UNUSED_PARAM (cb_data);
     pretty_print_disable ();    
     return 0;
 }
