@@ -9,7 +9,7 @@
         (void)fprintf (stderr, \
                 "fatal error: this should never execute.\n" \
                 "unused cb_parameter: %s: %s: %p\n", \
-                __func__, #variable_name, &variable_name); \
+                __func__, #variable_name, (void *)&variable_name); \
         break; \
     }
 
