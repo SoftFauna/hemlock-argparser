@@ -50,7 +50,7 @@ copt_enable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
     CB_UNUSED_PARAM (opt_arr);
     CB_UNUSED_PARAM (opt_cnt);
     CB_UNUSED_PARAM (cb_data);
-    pretty_print_enable ();    
+    cprintf_enable ();    
     return 0;
 }
 
@@ -62,7 +62,7 @@ copt_disable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
     CB_UNUSED_PARAM (opt_arr);
     CB_UNUSED_PARAM (opt_cnt);
     CB_UNUSED_PARAM (cb_data);
-    pretty_print_disable ();    
+    cprintf_disable ();    
     return 0;
 }
 
@@ -71,7 +71,7 @@ int
 copt_are_colors_enabled (void)
 {
     TRACE_FN ();
-    return g_pretty_print;
+    return cprintf_get_status ();
 }
 
 char *

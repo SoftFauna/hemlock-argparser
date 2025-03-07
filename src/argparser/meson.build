@@ -27,6 +27,9 @@ libhemlock_argparser = library(
   dependencies : [
     m_dep,
   ],
+  include_directories : [
+    cprintf_inc,
+  ],
   install : true,
 )
 

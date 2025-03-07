@@ -10,10 +10,9 @@
 #include <stdio.h>
 #include <string.h>
 
-
-static void log_warning_prefix (void);
-static void log_error_prefix (void);
-static void log_fatal_error_prefix (void);
+#define WARNING_PREFIX "%Ab%Fywarning%Ar: "
+#define ERROR_PREFIX "%Ab%Frerror%Ar: "
+#define FATAL_PREFIX "%Ab%Au%Frfatal error%Ar: "
 
 
 /* PUBLIC API */
@@ -64,10 +63,10 @@ void
 log_unknown_short_option (char short_opt)
 {
     TRACE_FN ();
-    log_error_prefix ();
-    (void)fprintf (stderr, 
-            "unknown option '%s%s-%c%s%s'.\n", 
-            g_bold, g_underline, short_opt, g_nounderline, g_nobold);
+
+    (void)cfprintf (stderr, 
+            ERROR_PREFIX "unknown option '%Ab%Au-%c%Ar'.\n", 
+            short_opt);
 }
 
 
@@ -82,12 +81,9 @@ log_unknown_long_option (char *long_opt)
     opt_param_start = strchr (long_opt, '=');
     opt_length = (int)(opt_param_start - long_opt);
 
-    log_error_prefix ();
-    (void)fprintf (stderr, "unknown option '%s%s%.*s%s%s'.\n", 
-        g_bold, g_underline,
-        opt_length, long_opt,
-        g_nounderline, g_nobold
-    );
+    (void)cfprintf (stderr, 
+            ERROR_PREFIX "unknown option '%Ab%Au%.*s%Ar'.\n", 
+            opt_length, long_opt);
 
 }
 
@@ -96,12 +92,12 @@ void
 log_missing_parameter (struct token *p_token)
 {
     TRACE_FN ();
-    log_error_prefix ();
-    (void)fprintf (stderr, 
-            "option '%s%s%s%s%s' expects a parameter of type %s%s<%s>%s%s, but none "
-            "was given.\n",
-            g_bold, g_cyan, get_option_name (p_token), g_fg_reset, g_nobold,
-            g_bold, g_cyan, get_parameter_type_name (p_token->opt->type), g_fg_reset, g_nobold);
+
+    (void)cfprintf (stderr, 
+            ERROR_PREFIX "option '%Ab%Fc%s%Ar' expects a parameter of type "
+            "%Ab%Fc<%s>%Ar, but none was given.\n",
+            get_option_name (p_token),
+            get_parameter_type_name (p_token->opt->type));
 }
 
 
@@ -109,13 +105,13 @@ void
 log_invalid_parameter_type (struct token *p_token)
 {
     TRACE_FN ();
-    log_error_prefix ();
-    (void)fprintf (stderr, 
-            "option '%s%s%s%s%s' expects a parameter of type %s%s<%s>%s%s, but got "
-            "'%s%s%s%s%s'.\n",
-            g_bold, g_cyan, get_option_name (p_token), g_fg_reset, g_nobold,
-            g_bold, g_cyan, get_parameter_type_name (p_token->opt->type), g_fg_reset, g_nobold,
-            g_bold, g_underline, p_token->argv_param, g_nounderline, g_nobold
+
+    (void)cfprintf (stderr, 
+            ERROR_PREFIX "option '%Ab%Fc%s%Ar' expects a parameter of type "
+            "%Ab%Fc<%s>%Ar, but got '%Ab%Au%s%Ar'.\n",
+            get_option_name (p_token),
+            get_parameter_type_name (p_token->opt->type),
+            p_token->argv_param
     );
 }
 
@@ -124,58 +120,27 @@ void
 log_useless_parameter (struct token *p_token)
 {
     TRACE_FN ();
-    log_error_prefix ();
-    (void)fprintf (stderr, 
-            "option '%s%s%s%s%s' does not take any parameters, but got '%s%s%s%s%s'.\n",
-            g_bold, g_cyan, get_option_name (p_token), g_fg_reset, g_nobold,
-            g_bold, g_underline, p_token->argv_param, g_nounderline, g_nobold);
+
+    (void)cfprintf (stderr, 
+            ERROR_PREFIX "option '%Ab%Fc%s%Ar' does not take any parameters, "
+            "but got '%Ab%Au%s%Ar'.\n",
+            get_option_name (p_token),
+            p_token->argv_param);
 }
 
 void
 log_fatal_unknown_type (copt_type_t type)
 {
     TRACE_FN ();
-    log_fatal_error_prefix ();
-    (void)fprintf (stderr, 
-            "malformed option array, unknown parameter type %s%s%d%s%s\n",
-            g_bold, g_underline, type, g_nounderline, g_nobold);
+
+    (void)cfprintf (stderr, 
+            FATAL_PREFIX "malformed option array, unknown parameter type "
+            "%Ab%Au%d%Ar\n",
+            type);
 }
 
 
 /* PRIVATE FILE-STATIC API */
-static void 
-log_warning_prefix (void)
-{
-    TRACE_FN ();
-    (void)fprintf (stderr, 
-            "%s%swarning%s%s: ",
-            g_bold, g_yellow, 
-            g_fg_reset, g_nobold
-    );
-}
-
-static void 
-log_error_prefix (void)
-{
-    TRACE_FN ();
-    (void)fprintf (stderr, 
-            "%s%serror%s%s: ",
-            g_bold, g_red, 
-            g_fg_reset, g_nobold
-    );
-
-}
-
-static void 
-log_fatal_error_prefix (void)
-{
-    TRACE_FN ();
-    (void)fprintf (stderr, 
-            "%s%s%sfatal error%s%s%s: ",
-            g_bold, g_underline, g_red, 
-            g_fg_reset, g_nounderline, g_nobold
-    );
-}
 
 
 /* end of file */

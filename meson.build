@@ -13,6 +13,8 @@ project(
   meson_version : '>= 1.1.0',
 )
 
+cprintf_inc = include_directories('external/cprintf')
+
 subdir('src')
 
 # end of file
