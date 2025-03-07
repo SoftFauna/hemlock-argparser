@@ -1,0 +1,4 @@
+
+2025-03-07 11:24: <sage.message@email.com> sage-etcher
+    Debian 12.9.0 Meson too old; has v1.0.1, but project requires v1.1.0.
+    Adding 'meson_version >= 1.1.0' into meson config.
