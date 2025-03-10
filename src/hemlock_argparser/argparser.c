@@ -74,12 +74,30 @@ copt_are_colors_enabled (void)
     return cprintf_get_status ();
 }
 
+
 char *
-copt_print_options (copt_t *opt_arr, size_t opt_cnt)
+copt_print_options (copt_t *opt_arr, size_t opt_cnt, int wrap_col)
 {
     TRACE_FN ();
-    return genhelp (opt_arr, opt_cnt);
+    return gen_usage (opt_arr, opt_cnt, wrap_col);
 }
+
+
+char *
+copt_help_page (copt_prog_t *program, int wrap_col)
+{
+    TRACE_FN ();
+    return gen_help_page (program, wrap_col);
+}
+
+
+char *
+copt_version_page (copt_prog_t *program)
+{
+    TRACE_FN ();
+    return gen_version_page (program);
+}
+
 
 
 /* PRIVATE API */

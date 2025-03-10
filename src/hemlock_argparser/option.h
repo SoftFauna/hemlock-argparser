@@ -29,4 +29,29 @@ typedef struct copt
     char *desc;
 } copt_t;
 
+
+typedef struct
+{
+    char *name;
+    char *description;
+    char *version;
+
+    char *help_extra;
+    char *version_extra;
+
+    char *copyright_year;
+    char *copyright_holder;
+    char *license_name;
+    char *license_url;
+
+    char *issues_url;
+    char *repository_url;
+    char *contact_email;
+    char *contact_name;
+
+    copt_t *options;
+    size_t  option_count;
+} copt_prog_t;
+
+
 /* end of file */

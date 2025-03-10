@@ -1,8 +1,13 @@
 
 executable(
   'hemlock_argparser_ex',
-  'main.c',
-  dependencies : libhemlock_argparser_dep,
+  [ 'main.c', 'cli.c', ],
+  include_directories : [
+    local_inc,
+  ],
+  dependencies : [
+    libhemlock_argparser_dep,
+  ],
   install : false,
 )
 

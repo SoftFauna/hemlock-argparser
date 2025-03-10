@@ -1,4 +1,6 @@
 
+#include "genhelp.h"
+
 #include "debug_trace.h"
 #include "log.h"
 #include "option.h"
@@ -20,24 +22,133 @@ static int max_without_outlier (int *arr, size_t n, float filter);
 static int softwrap (char *src, size_t hard_max);
 static int *generate_option_len_array (copt_t *arr, size_t n);
 
-static int snprintf_description (char *buf, size_t buf_n, char *desc, int current_col, int base_col);
+static int snprintf_description (char *buf, size_t buf_n, char *desc, int current_col, int base_col, int wrap_col);
 static int csnprintf_option (char *buf, size_t buf_n, int *p_size, int *p_plen, copt_t *src);
-static int snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt);
+static int snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt, int wrap_col);
 
 
 
 
 /* PUBLIC API */
 char *
-genhelp (copt_t *opt_arr, size_t opt_cnt)
+gen_help_page (copt_prog_t *prog, int wrap_col)
+{
+    const char FMT[] = {
+        "%Abusage%Ar: %Ab%Fy%s%Ar %Ai%Fm<options>%Ar\n"
+        "%s\n"
+        "\n"
+        "%Aboptions%Ar:\n"
+        "%s\n"
+        "\n"
+        "%Abrepository%Ar: %Ai%Fc<%s>%Ar\n"
+        "%Abissues%Ar: %Ai%Fc<%s>%Ar\n"
+        "%Abcontact%Ar: %s %Ai%Fc<%s>%Ar\n"
+        "%s\n"
+    };
+
+
+    char  *help = NULL;
+    size_t size = 0;
+
+    char *options = NULL;
+
+    TRACE_FN ();
+
+    assert (prog != NULL);
+    assert (prog->name != NULL);
+    assert (prog->description != NULL);
+    assert (prog->repository_url != NULL);
+    assert (prog->issues_url != NULL);
+    assert (prog->contact_name != NULL);
+    assert (prog->contact_email != NULL);
+
+    options = gen_usage (prog->options, prog->option_count, wrap_col);
+
+    size = csnprintf (NULL, 0, FMT, 
+            prog->name,
+            prog->description,
+            options,
+            prog->repository_url,
+            prog->issues_url,
+            prog->contact_name, prog->contact_email,
+            (prog->help_extra == NULL) ? "" : prog->help_extra
+    );
+    help = malloc (size);
+    (void)csnprintf (help, size, FMT, 
+            prog->name,
+            prog->description,
+            options,
+            prog->repository_url,
+            prog->issues_url,
+            prog->contact_name, prog->contact_email,
+            (prog->help_extra == NULL) ? "" : prog->help_extra
+    );
+    
+    free (options);
+    options = NULL;
+
+    return help;
+}
+
+
+char *
+gen_version_page (copt_prog_t *prog)
+{
+    const char FMT[] = {
+        "%Ab%Fy%s%Ar %s\n"
+        "Copyright (c) %s %s\n"
+        "%s License: %Ai%Fc<%s>%Ar\n"
+        "%Ai%Fc<%s>%Ar\n"
+        "%s\n"
+    };
+
+
+    char  *version = NULL;
+    size_t size = 0;
+
+    TRACE_FN ();
+
+    assert (prog != NULL);
+    assert (prog->name != NULL);
+    assert (prog->version != NULL);
+    assert (prog->copyright_year != NULL);
+    assert (prog->copyright_holder != NULL);
+    assert (prog->license_name != NULL);
+    assert (prog->license_url != NULL);
+    assert (prog->repository_url != NULL);
+
+
+    size = csnprintf (NULL, 0, FMT,
+        prog->name, prog->version,
+        prog->copyright_year, prog->copyright_holder,
+        prog->license_name, prog->license_url,
+        prog->repository_url,
+        (prog->version_extra == NULL) ? "" : prog->version_extra
+    );
+    version = malloc (size);
+    (void)csnprintf (version, size, FMT,
+        prog->name, prog->version,
+        prog->copyright_year, prog->copyright_holder,
+        prog->license_name, prog->license_url,
+        prog->repository_url,
+        (prog->version_extra == NULL) ? "" : prog->version_extra
+    );
+
+    return version;
+}
+
+
+char *
+gen_usage (copt_t *opt_arr, size_t opt_cnt, int wrap_col)
 {
     size_t size = 0;
     char *usage = NULL;
-    const char fmt[] = "%Fr%Ab%Aihellorld%Ar\n";
 
-    size = snprintf_usage (NULL, 0, opt_arr, opt_cnt);
+    TRACE_FN ();
+
+    size = snprintf_usage (NULL, 0, opt_arr, opt_cnt, wrap_col);
     usage = malloc (size);
-    (void)snprintf_usage (usage, size, opt_arr, opt_cnt);
+    (void)snprintf_usage (usage, size, opt_arr, opt_cnt, wrap_col);
 
     return usage;
 }
@@ -125,7 +236,6 @@ max_without_outlier (int *arr, size_t n, float filter)
 }
 
 
-
 static int
 softwrap (char *src, size_t hard_max)
 {
@@ -177,23 +287,19 @@ generate_option_len_array (copt_t *arr, size_t n)
 }
 
 
-
 static int
 csnprintf_option (char *buf, size_t buf_n, int *p_size, int *p_plen, copt_t *opt_arr)
 {
     /* "  -s, --long-flag=<parameter>"*/
-    const char *fmt_s   = "  %Fc-%c%Ar";
-    const char *fmt_l   = "      %Fc%s%Ar";
-    const char *fmt_sl  = "  %Fc-%c%Ar, %Fc%s%Ar";
-    const char *fmt_sp  = "  %Fc-%c%Ar=%Ab<%s>%Ar";
-    const char *fmt_lp  = "      %Fc%s%Ar=%Ab<%s>%Ar";
-    const char *fmt_slp = "  %Fc-%c%Ar, %Fc%s%Ar=%Ab<%s>%Ar";
+    const char *fmt_s   = "  %Ab%Fm-%c%Ar";
+    const char *fmt_l   = "      %Ab%Fm%s%Ar";
+    const char *fmt_sl  = "  %Ab%Fm-%c%Ar, %Ab%Fm%s%Ar";
+    const char *fmt_sp  = "  %Ab%Fm-%c%Ar=%Ai%Ab<%s>%Ar";
+    const char *fmt_lp  = "      %Ab%Fm%s%Ar=%Ai%Ab<%s>%Ar";
+    const char *fmt_slp = "  %Ab%Fm-%c%Ar, %Ab%Fm%s%Ar=%Ai%Ab<%s>%Ar";
 
     char *param_name = NULL;
     unsigned mode = 0;
-
-    int plen = 0;
-    int size = 0;
 
     enum
     {
@@ -254,9 +360,8 @@ csnprintf_option (char *buf, size_t buf_n, int *p_size, int *p_plen, copt_t *opt
 
 static int
 snprintf_description (char *buf, size_t buf_n, char *desc, int current_col, 
-                      int base_col)
+                      int base_col, int wrap_col)
 {
-    const int MAX_COL = 80;
     const int NEWLINE_INDENT = 2;
 
     char  *buf_iter      = buf;
@@ -287,7 +392,7 @@ snprintf_description (char *buf, size_t buf_n, char *desc, int current_col,
     while (total_read < desc_length)
     {
         int padding_cols   = desc_start_col - current_col;
-        int remaining_cols = MAX_COL - desc_start_col;
+        int remaining_cols = wrap_col - desc_start_col;
 
         int print_n_cols = softwrap (iter, remaining_cols);
         int result_n = snprintf (buf_iter, buf_remaining, "%*s%.*s\n", 
@@ -318,7 +423,7 @@ snprintf_description (char *buf, size_t buf_n, char *desc, int current_col,
 
 
 static int
-snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt)
+snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt, int wrap_col)
 {
     const float MAX_DEVIATION = 100.0f;
     const int POST_OPTION_PADDING = 4;
@@ -358,7 +463,7 @@ snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt)
 
         /* and the descriptions */
         description_size = snprintf_description (buf, buf_n, opt_arr[i].desc,
-                (int)option_plen, (int)(max_col + POST_OPTION_PADDING));
+                (int)option_plen, (int)(max_col + POST_OPTION_PADDING), wrap_col);
         if (buf != NULL)
         {
             buf   += description_size;
