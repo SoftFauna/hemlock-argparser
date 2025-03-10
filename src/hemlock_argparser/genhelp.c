@@ -1,6 +1,7 @@
 
 #include "genhelp.h"
 
+#include "colors.h"
 #include "debug_trace.h"
 #include "log.h"
 #include "option.h"
@@ -34,15 +35,15 @@ char *
 gen_help_page (copt_prog_t *prog, int wrap_col)
 {
     const char FMT[] = {
-        "%Abusage%Ar: %Ab%Fy%s%Ar %Ai%Fm<options>%Ar\n"
+        C_LABEL"usage"C_RESET": "C_BINARY"%s"C_RESET" "C_PARAM"<options>"C_RESET"\n"
         "%s\n"
         "\n"
-        "%Aboptions%Ar:\n"
+        C_LABEL"options"C_RESET":\n"
         "%s\n"
         "\n"
-        "%Abrepository%Ar: %Ai%Fc<%s>%Ar\n"
-        "%Abissues%Ar: %Ai%Fc<%s>%Ar\n"
-        "%Abcontact%Ar: %s %Ai%Fc<%s>%Ar\n"
+        C_LABEL"repository"C_RESET": "C_LINK"<%s>"C_RESET"\n"
+        C_LABEL"issues"C_RESET": "C_LINK"<%s>"C_RESET"\n"
+        C_LABEL"contact"C_RESET": "C_NAME"%s"C_RESET" "C_EMAIL"<%s>"C_RESET"\n"
         "%s\n"
     };
 
@@ -95,10 +96,10 @@ char *
 gen_version_page (copt_prog_t *prog)
 {
     const char FMT[] = {
-        "%Ab%Fy%s%Ar %s\n"
+        C_BINARY"%s"C_RESET" %s\n"
         "Copyright (c) %s %s\n"
-        "%s License: %Ai%Fc<%s>%Ar\n"
-        "%Ai%Fc<%s>%Ar\n"
+        "%s License: "C_LINK"<%s>"C_RESET"\n"
+        C_LINK"<%s>"C_RESET"\n"
         "%s\n"
     };
 
@@ -290,13 +291,12 @@ generate_option_len_array (copt_t *arr, size_t n)
 static int
 csnprintf_option (char *buf, size_t buf_n, int *p_size, int *p_plen, copt_t *opt_arr)
 {
-    /* "  -s, --long-flag=<parameter>"*/
-    const char *fmt_s   = "  %Ab%Fm-%c%Ar";
-    const char *fmt_l   = "      %Ab%Fm%s%Ar";
-    const char *fmt_sl  = "  %Ab%Fm-%c%Ar, %Ab%Fm%s%Ar";
-    const char *fmt_sp  = "  %Ab%Fm-%c%Ar=%Ai%Ab<%s>%Ar";
-    const char *fmt_lp  = "      %Ab%Fm%s%Ar=%Ai%Ab<%s>%Ar";
-    const char *fmt_slp = "  %Ab%Fm-%c%Ar, %Ab%Fm%s%Ar=%Ai%Ab<%s>%Ar";
+    const char *fmt_s   = "  "C_OPTION"-%c"C_RESET;
+    const char *fmt_l   = "      "C_OPTION"%s"C_RESET;
+    const char *fmt_sl  = "  "C_OPTION"-%c"C_RESET", "C_OPTION"%s"C_RESET;
+    const char *fmt_sp  = "  "C_OPTION"-%c"C_RESET"="C_PARAM"<%s>"C_RESET;
+    const char *fmt_lp  = "      "C_OPTION"%s"C_RESET"="C_PARAM"<%s>"C_RESET;
+    const char *fmt_slp = "  "C_OPTION"-%c"C_RESET", "C_OPTION"%s"C_RESET"="C_PARAM"<%s>"C_RESET;
 
     char *param_name = NULL;
     unsigned mode = 0;
