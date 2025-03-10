@@ -2,7 +2,7 @@
 #pragma once
 
 #define C_OPTION "%Ab%Fm"
-#define C_PARAM  "%Ab%Ai%Fk"
+#define C_PARAM  "%Ab%Ai%Fc"
 #define C_LABEL  "%Ab"
 
 #define C_BINARY "%Ab%Fy"
