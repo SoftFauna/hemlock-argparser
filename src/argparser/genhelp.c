@@ -3,6 +3,7 @@
 #include "log.h"
 #include "option.h"
 #include "parser.h"
+#include "pretty.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -20,7 +21,7 @@ static int softwrap (char *src, size_t hard_max);
 static int *generate_option_len_array (copt_t *arr, size_t n);
 
 static int snprintf_description (char *buf, size_t buf_n, char *desc, int current_col, int base_col);
-static int snprintf_option (char *buf, size_t buf_n, copt_t *src);
+static int csnprintf_option (char *buf, size_t buf_n, int *p_size, int *p_plen, copt_t *src);
 static int snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt);
 
 
@@ -32,6 +33,7 @@ genhelp (copt_t *opt_arr, size_t opt_cnt)
 {
     size_t size = 0;
     char *usage = NULL;
+    const char fmt[] = "%Fr%Ab%Aihellorld%Ar\n";
 
     size = snprintf_usage (NULL, 0, opt_arr, opt_cnt);
     usage = malloc (size);
@@ -156,7 +158,6 @@ softwrap (char *src, size_t hard_max)
 }
 
 
-
 static int *
 generate_option_len_array (copt_t *arr, size_t n)
 {
@@ -169,7 +170,7 @@ generate_option_len_array (copt_t *arr, size_t n)
 
     for (i = 0; i < n; i++)
     {
-        result[i] = snprintf_option (NULL, 0, &arr[i]);
+        (void)csnprintf_option (NULL, 0, NULL, &result[i], &arr[i]);
     }
 
     return result;
@@ -178,18 +179,21 @@ generate_option_len_array (copt_t *arr, size_t n)
 
 
 static int
-snprintf_option (char *buf, size_t buf_n, copt_t *opt_arr)
+csnprintf_option (char *buf, size_t buf_n, int *p_size, int *p_plen, copt_t *opt_arr)
 {
     /* "  -s, --long-flag=<parameter>"*/
-    const char *fmt_s   = "  -%c";
-    const char *fmt_l   = "      %s";
-    const char *fmt_sl  = "  -%c, %s";
-    const char *fmt_sp  = "  -%c=<%s>";
-    const char *fmt_lp  = "      %s=<%s>";
-    const char *fmt_slp = "  -%c, %s=<%s>";
+    const char *fmt_s   = "  %Fc-%c%Ar";
+    const char *fmt_l   = "      %Fc%s%Ar";
+    const char *fmt_sl  = "  %Fc-%c%Ar, %Fc%s%Ar";
+    const char *fmt_sp  = "  %Fc-%c%Ar=%Ab<%s>%Ar";
+    const char *fmt_lp  = "      %Fc%s%Ar=%Ab<%s>%Ar";
+    const char *fmt_slp = "  %Fc-%c%Ar, %Fc%s%Ar=%Ab<%s>%Ar";
 
     char *param_name = NULL;
     unsigned mode = 0;
+
+    int plen = 0;
+    int size = 0;
 
     enum
     {
@@ -228,20 +232,22 @@ snprintf_option (char *buf, size_t buf_n, copt_t *opt_arr)
     switch (mode)
     {
     case MODE_SLP:
-        return snprintf (buf, buf_n, fmt_slp, opt_arr->short_opt, opt_arr->long_opt, param_name);
+        return csnprintf_v2 (buf, buf_n, p_size, p_plen, fmt_slp, opt_arr->short_opt, opt_arr->long_opt, param_name);
     case MODE_SL:
-        return snprintf (buf, buf_n, fmt_sl, opt_arr->short_opt, opt_arr->long_opt);
+        return csnprintf_v2 (buf, buf_n, p_size, p_plen, fmt_sl, opt_arr->short_opt, opt_arr->long_opt);
     case MODE_S:
-        return snprintf (buf, buf_n, fmt_s, opt_arr->short_opt);
+        return csnprintf_v2 (buf, buf_n, p_size, p_plen, fmt_s, opt_arr->short_opt);
     case MODE_SP:
-        return snprintf (buf, buf_n, fmt_sp, opt_arr->short_opt, param_name);
+        return csnprintf_v2 (buf, buf_n, p_size, p_plen, fmt_sp, opt_arr->short_opt, param_name);
     case MODE_LP:
-        return snprintf (buf, buf_n, fmt_lp, opt_arr->long_opt, param_name);
+        return csnprintf_v2 (buf, buf_n, p_size, p_plen, fmt_lp, opt_arr->long_opt, param_name);
     case MODE_L:
-        return snprintf (buf, buf_n, fmt_l, opt_arr->long_opt);
+        return csnprintf_v2 (buf, buf_n, p_size, p_plen, fmt_l, opt_arr->long_opt);
     default:
         /* error */
-        return 0;
+        *p_plen = 0;
+        *p_size = 0;
+        return -1;
     }
 }
 
@@ -322,8 +328,10 @@ snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt)
     int max_col = 0;
     
     size_t total = 0;
-    size_t option_length = 0;
-    size_t description_length = 0;
+    int option_size = 0;
+    int option_plen = 0;
+    int description_size = 0;
+    //int description_plen = 0;
 
     TRACE_FN ();
    
@@ -341,22 +349,24 @@ snprintf_usage (char *buf, size_t buf_n, copt_t *opt_arr, size_t opt_cnt)
     for (i = 0; i < opt_cnt; i++)
     {
         /* get the print options */
-        option_length = snprintf_option (buf, buf_n, &opt_arr[i]);
+        (void)csnprintf_option (buf, buf_n, &option_size, &option_plen, &opt_arr[i]);
         if (buf != NULL)
         {
-            buf += option_length;
+            buf   += option_size;
+            buf_n -= option_size;
         }
 
         /* and the descriptions */
-        description_length = snprintf_description (buf, buf_n, opt_arr[i].desc, 
-                (int)option_length, (int)(max_col + POST_OPTION_PADDING));
+        description_size = snprintf_description (buf, buf_n, opt_arr[i].desc,
+                (int)option_plen, (int)(max_col + POST_OPTION_PADDING));
         if (buf != NULL)
         {
-            buf += description_length;
+            buf   += description_size;
+            buf_n -= description_size;
         }
 
         /* and update the total */
-        total += option_length + description_length;
+        total += option_size + description_size;
     }
 
     free (len_arr);

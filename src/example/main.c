@@ -99,7 +99,7 @@ log_usage (FILE *output, copt_t *opts, size_t opt_cnt)
 
     (void)fprintf (output, 
         "usage: hemlock_argparser_ex <options>\n"
-        "Demonstration program for hemlock-argparser version 0.2.0\n"
+        "Demonstration program for hemlock-argparser version 0.2.1\n"
         "\n"
         "options:\n"
         "%s"
