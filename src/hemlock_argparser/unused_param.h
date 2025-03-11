@@ -3,8 +3,8 @@
  * Copyright (c) 2025 The SoftFauna Team
  * MIT License */
 
-#ifndef HMARG__HEADER
-#define HMARG__HEADER
+#ifndef HMARG_UNUSED_PARAM_HEADER
+#define HMARG_UNUSED_PARAM_HEADER
 #ifdef __cplusplus
 extern "C" {
 #endif
