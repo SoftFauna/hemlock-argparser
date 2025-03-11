@@ -9,8 +9,11 @@ project(
   ],
   license : 'MIT',
   license_files : [ 'LICENSE' ],
-  version : '0.1.0',
+  version : '0.2.1',
+  meson_version : '>= 1.1.0',
 )
+
+cprintf_inc = include_directories('external/cprintf')
 
 subdir('src')
 

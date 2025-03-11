@@ -1,0 +1,3 @@
+[submodule "external/cprintf"]
+	path = external/cprintf
+	url = https://github.com/sage-etcher/cprintf
