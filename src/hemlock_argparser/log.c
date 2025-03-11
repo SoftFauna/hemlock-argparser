@@ -1,18 +1,19 @@
 
 #include "log.h"
 
-#include "pretty.h"
+#include "colors.h"
 #include "debug_trace.h"
 #include "option.h"
+#include "pretty.h"
 #include "tokenizer.h"
 
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
-#define WARNING_PREFIX "%Ab%Fywarning%Ar: "
-#define ERROR_PREFIX "%Ab%Frerror%Ar: "
-#define FATAL_PREFIX "%Ab%Au%Frfatal error%Ar: "
+#define WARNING_PREFIX C_WARN"warning"C_RESET": "
+#define ERROR_PREFIX   C_ERROR"error"C_RESET": "
+#define FATAL_PREFIX   C_FATAL"fatal error"C_RESET": "
 
 
 /* PUBLIC API */
@@ -65,7 +66,7 @@ log_unknown_short_option (char short_opt)
     TRACE_FN ();
 
     (void)cfprintf (stderr, 
-            ERROR_PREFIX "unknown option '%Ab%Au-%c%Ar'.\n", 
+            ERROR_PREFIX "unknown option "C_OPTION"-%c"C_RESET".\n", 
             short_opt);
 }
 
@@ -82,7 +83,7 @@ log_unknown_long_option (char *long_opt)
     opt_length = (int)(opt_param_start - long_opt);
 
     (void)cfprintf (stderr, 
-            ERROR_PREFIX "unknown option '%Ab%Au%.*s%Ar'.\n", 
+            ERROR_PREFIX "unknown option "C_OPTION"'%.*s'"C_RESET".\n", 
             opt_length, long_opt);
 
 }
@@ -94,8 +95,8 @@ log_missing_parameter (struct token *p_token)
     TRACE_FN ();
 
     (void)cfprintf (stderr, 
-            ERROR_PREFIX "option '%Ab%Fc%s%Ar' expects a parameter of type "
-            "%Ab%Fc<%s>%Ar, but none was given.\n",
+            ERROR_PREFIX "option "C_OPTION"'%s'"C_RESET" expects a parameter "
+            "of type "C_PARAM"<%s>"C_RESET", but none was given.\n",
             get_option_name (p_token),
             get_parameter_type_name (p_token->opt->type));
 }
@@ -107,8 +108,9 @@ log_invalid_parameter_type (struct token *p_token)
     TRACE_FN ();
 
     (void)cfprintf (stderr, 
-            ERROR_PREFIX "option '%Ab%Fc%s%Ar' expects a parameter of type "
-            "%Ab%Fc<%s>%Ar, but got '%Ab%Au%s%Ar'.\n",
+            ERROR_PREFIX "option "C_OPTION"'%s'"C_RESET" expects a parameter "
+            "of type "C_PARAM"<%s>"C_RESET", but got "C_PARAM"'%s'"C_RESET
+            ".\n",
             get_option_name (p_token),
             get_parameter_type_name (p_token->opt->type),
             p_token->argv_param
@@ -122,8 +124,8 @@ log_useless_parameter (struct token *p_token)
     TRACE_FN ();
 
     (void)cfprintf (stderr, 
-            ERROR_PREFIX "option '%Ab%Fc%s%Ar' does not take any parameters, "
-            "but got '%Ab%Au%s%Ar'.\n",
+            ERROR_PREFIX "option "C_OPTION"'%s'"C_RESET" does not take any "
+            "parameters, but got "C_PARAM"'%s'"C_RESET".\n",
             get_option_name (p_token),
             p_token->argv_param);
 }
@@ -135,7 +137,7 @@ log_fatal_unknown_type (copt_type_t type)
 
     (void)cfprintf (stderr, 
             FATAL_PREFIX "malformed option array, unknown parameter type "
-            "%Ab%Au%d%Ar\n",
+            C_PARAM"%d"C_RESET"\n",
             type);
 }
 

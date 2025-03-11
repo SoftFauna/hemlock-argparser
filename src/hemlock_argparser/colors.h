@@ -10,6 +10,10 @@
 #define C_NAME   "%Fc"
 #define C_EMAIL  C_LINK
 
+#define C_FATAL  "%Au%Ab%Fr"
+#define C_ERROR  "%Ab%Fr"
+#define C_WARN   "%Ab%Fy"
+
 #define C_RESET  "%Ar"
 
 
