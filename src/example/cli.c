@@ -101,7 +101,7 @@ get_program (copt_t *opts, size_t opt_cnt)
         .version          = "0.2.1",
 
         .copyright_year   = "2025",
-        .copyright_holder = "Sage I. Hendricks",
+        .copyright_holder = "The SoftFauna Team",
         .license_name     = "MIT",
         .license_url      = "https://mit-license.org/",
         .version_extra    = NULL,
