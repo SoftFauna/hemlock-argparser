@@ -5,7 +5,9 @@
 
 /**
  * @file
- * document me.
+ * The main Hemlock Arguement Parser API. Defines every public API call, how 
+ * to use them, and how they should be called. The main interface for the 
+ * library.
  */
 
 #ifndef HMARG_ARGPARSER_HEADER
