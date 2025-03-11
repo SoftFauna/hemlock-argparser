@@ -1,8 +1,13 @@
-/* hemlock-argparser - a generic arguement parser written for HEMLOCK.
+/* hemlock-argparser example - a generic arguement parser written for HEMLOCK.
  * <https://github.com/SoftFauna/hemlock-argparser.git>
- * Copyright (c) 2025 The SoftFauna Team */
+ * Copyright (c) 2025 The SoftFauna Team
+ * MIT License */
 
-#pragma once
+#ifndef HMARGEX_CLI_HEADER
+#define HMARGEX_CLI_HEADER
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct
 {
@@ -20,4 +25,8 @@ typedef struct
 
 void cli_parser (int argc, char **argv, cli_results_t *cli_results);
 
+#ifdef __clplusplus
+}
+#endif /* C++ compat */
+#endif /* header guard */
 /* end of file */

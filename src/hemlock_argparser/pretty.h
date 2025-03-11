@@ -1,5 +1,14 @@
+/* hemlock-argparser - a generic arguement parser written for HEMLOCK.
+ * <https://github.com/SoftFauna/hemlock-argparser.git>
+ * Copyright (c) 2025 The SoftFauna Team
+ * MIT License */
 
-#pragma once
+#ifndef HMARG_PRETTY_HEADER
+#define HMARG_PRETTY_HEADER
+#ifdef __cplusplus
+extern "C" {
+#endif
+ 
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -14,4 +23,8 @@ void cprintf_enable (void);
 void cprintf_disable (void);
 int cprintf_get_status (void);
 
+#ifdef __clplusplus
+}
+#endif /* C++ compat */
+#endif /* header guard */
 /* end of file */

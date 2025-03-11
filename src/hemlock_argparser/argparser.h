@@ -1,5 +1,14 @@
+/* hemlock-argparser - a generic arguement parser written for HEMLOCK.
+ * <https://github.com/SoftFauna/hemlock-argparser.git>
+ * Copyright (c) 2025 The SoftFauna Team
+ * MIT License */
 
-#pragma once
+#ifndef HMARG_ARGPARSER_HEADER
+#define HMARG_ARGPARSER_HEADER
+#ifdef __cplusplus
+extern "C" {
+#endif
+ 
 
 #include "option.h"
 
@@ -37,5 +46,8 @@ LIB_HEMARG_API int copt_disable_colors_cb (copt_t *option_array, size_t option_c
 LIB_HEMARG_API int copt_are_colors_enabled (void);
 
 
-
+#ifdef __clplusplus
+}
+#endif /* C++ compat */
+#endif /* header guard */
 /* end of file */

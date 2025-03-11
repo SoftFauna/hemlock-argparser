@@ -1,5 +1,14 @@
+/* hemlock-argparser - a generic arguement parser written for HEMLOCK.
+ * <https://github.com/SoftFauna/hemlock-argparser.git>
+ * Copyright (c) 2025 The SoftFauna Team
+ * MIT License */
 
-#pragma once
+#ifndef HMARG_TOKENIZER_HEADER
+#define HMARG_TOKENIZER_HEADER
+#ifdef __cplusplus
+extern "C" {
+#endif
+ 
 
 #include "option.h"
 
@@ -36,4 +45,8 @@ void destroy_tokenizer (struct tokenizer *self);
 copt_t *get_short_option (char character, copt_t *opt_arr, size_t opt_cnt);
 copt_t *get_long_option (char *cursor, copt_t *opt_arr, size_t opt_cnt);
 
+#ifdef __clplusplus
+}
+#endif /* C++ compat */
+#endif /* header guard */
 /* end of file */

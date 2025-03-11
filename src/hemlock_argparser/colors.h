@@ -1,5 +1,13 @@
+/* hemlock-argparser - a generic arguement parser written for HEMLOCK.
+ * <https://github.com/SoftFauna/hemlock-argparser.git>
+ * Copyright (c) 2025 The SoftFauna Team
+ * MIT License */
 
-#pragma once
+#ifndef HMARG_THEME_HEADER
+#define HMARG_THEME_HEADER
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define C_OPTION "%Ab%Fm"
 #define C_PARAM  "%Ab%Ai%Fc"
@@ -17,5 +25,8 @@
 #define C_RESET  "%Ar"
 
 
-
+#ifdef __clplusplus
+}
+#endif /* C++ compat */
+#endif /* header guard */
 /* end of file */

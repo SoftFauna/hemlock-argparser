@@ -1,3 +1,7 @@
+/* hemlock-argparser - a generic arguement parser written for HEMLOCK.
+ * <https://github.com/SoftFauna/hemlock-argparser.git>
+ * Copyright (c) 2025 The SoftFauna Team
+ * MIT License */
 
 #include "log.h"
 
