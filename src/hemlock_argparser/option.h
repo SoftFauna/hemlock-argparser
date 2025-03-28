@@ -48,19 +48,23 @@ typedef enum
  * matching arguement is reached and the option is of type CALLBACK, the 
  * paired callback funtion is executed on the spot.
  * 
- * The callback function is expected to take the option_array, option_count, 
+ * The callback function is expected to take the running argc and argv (all 
+ * previous values popped off), the option which triggered the callback, 
  * and some abstract cb_data, each of which are provided by the user when 
  * calling copt_parser.
  * 
- * Additionally, a return of COPT_CB_SUCCESS is indicitive of a success, and 
- * COPT_CB_FAILURE of a failure.
+ * On a success, a callback will return the number of extra arguements
+ * proccessed, or on a failure a -1.
+ *
+ * for clarity, COPT_CB_SUCCESS and COPT_CB_FAILURE are defined for basic 
+ * callbacks.
  * 
  * @see copt_cb_return_t
  * @see copt_type_t
  * @see copt_t
  * @see copt_parser()
  */
-typedef int (*copt_cb_t)(copt_t *option_arr, size_t option_cnt, void *cb_data);
+typedef int (*copt_cb_t)(int argc, char **argv, copt_t *opt, void *cb_data);
 
 
 /**

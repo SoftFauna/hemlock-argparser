@@ -9,7 +9,7 @@ project(
   ],
   license : 'MIT',
   license_files : [ 'LICENSE' ],
-  version : '0.2.1',
+  version : '0.2.2',
   meson_version : '>= 1.1.0',
 )
 

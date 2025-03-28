@@ -48,11 +48,12 @@ copt_parser (copt_t *opt_arr, size_t opt_cnt, char **argv, size_t argc,
 
 
 int 
-copt_enable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
+copt_enable_colors_cb (int argc, char **argv, copt_t *opt, void *cb_data)
 {
     TRACE_FN ();
-    CB_UNUSED_PARAM (opt_arr);
-    CB_UNUSED_PARAM (opt_cnt);
+    CB_UNUSED_PARAM (argc);
+    CB_UNUSED_PARAM (argv);
+    CB_UNUSED_PARAM (opt);
     CB_UNUSED_PARAM (cb_data);
     cprintf_enable ();    
     return 0;
@@ -60,11 +61,12 @@ copt_enable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
 
 
 int
-copt_disable_colors_cb (copt_t *opt_arr, size_t opt_cnt, void *cb_data)
+copt_disable_colors_cb (int argc, char **argv, copt_t *opt, void *cb_data)
 {
     TRACE_FN ();
-    CB_UNUSED_PARAM (opt_arr);
-    CB_UNUSED_PARAM (opt_cnt);
+    CB_UNUSED_PARAM (argc);
+    CB_UNUSED_PARAM (argv);
+    CB_UNUSED_PARAM (opt);
     CB_UNUSED_PARAM (cb_data);
     cprintf_disable ();    
     return 0;

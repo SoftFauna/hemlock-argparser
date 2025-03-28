@@ -19,7 +19,7 @@ libhemlock_argparser = library(
     'tokenizer.c',
     'validate.c',
   ]),
-  version : '0.2.1',
+  version : '0.2.2',
   soversion : '0',
   c_args: [
     '-DLIB_HEMARG_EXPORTS',
@@ -48,7 +48,7 @@ pkg = import('pkgconfig')
 pkg.generate(
   libraries : libhemlock_argparser_dep,
   subdirs : [ '.', 'hemlock_argparser' ],
-  version : '0.2.1',
+  version : '0.2.2',
   name : 'libhemlock_argparser',
   filebase : 'hemlock_argparser',
   description : 'Generic arguement parser.',

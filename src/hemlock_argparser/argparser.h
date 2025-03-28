@@ -152,9 +152,10 @@ LIB_HEMARG_API int copt_are_colors_enabled (void);
  * and version page generation. Used in conjunction with copt_t CALLBACK, 
  * enables colors when a user defined option is encountered.
  * 
- * @param option_array ignored
- * @param option_count ignored
- * @param cb_data      ignored
+ * @param argc    ignored
+ * @param argv    ignored
+ * @param opt     ignored
+ * @param cb_data ignored
  * 
  * @return COPT_CB_SUCCESS or COPT_CB_FAILURE depending on success/failure.
  * 
@@ -163,8 +164,8 @@ LIB_HEMARG_API int copt_are_colors_enabled (void);
  * @see copt_cb_return_t
  * @see copt_parser()
  */
-LIB_HEMARG_API int copt_enable_colors_cb (copt_t *option_array, 
-        size_t option_count, void *cb_data);
+LIB_HEMARG_API int copt_enable_colors_cb (int argc, char **argv, copt_t *opt, 
+        void *cb_data);
 
 
 /**
@@ -172,9 +173,10 @@ LIB_HEMARG_API int copt_enable_colors_cb (copt_t *option_array,
  * and version page generation. Used in conjunction with copt_t CALLBACK, 
  * disables colors when a user defined option is encountered.
  * 
- * @param option_array ignored
- * @param option_count ignored
- * @param cb_data      ignored
+ * @param argc    ignored
+ * @param argv    ignored
+ * @param opt     ignored
+ * @param cb_data ignored
  * 
  * @return COPT_CB_SUCCESS or COPT_CB_FAILURE depending on success/failure.
  * 
@@ -183,8 +185,8 @@ LIB_HEMARG_API int copt_enable_colors_cb (copt_t *option_array,
  * @see copt_cb_return_t
  * @see copt_parser()
  */
-LIB_HEMARG_API int copt_disable_colors_cb (copt_t *option_array, 
-        size_t option_count, void *cb_data);
+LIB_HEMARG_API int copt_disable_colors_cb (int argc, char **argv, copt_t *opt, 
+        void *cb_data);
 
 
 #ifdef __clplusplus

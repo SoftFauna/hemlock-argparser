@@ -16,7 +16,8 @@
 #include <string.h>
 
 
-static int execute_callback (struct token *p_token, copt_t *opt_arr, size_t opt_cnt, void *cb_data);
+static int execute_callback (struct token *p_token, int argc, char **argv, 
+        void *cb_data);
 
 /* PUBLIC API */
 int
@@ -154,6 +155,8 @@ int
 tokenize (struct tokenizer *self, char **argv, size_t argc, 
           copt_t *opt_arr, size_t opt_cnt, void *cb_data)
 {
+    int cb_rc = 0;
+
     size_t arr_index  = 0;
     char *iter = NULL;
 
@@ -193,6 +196,7 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
                 if (opt_match == NULL)
                 {
                     log_unknown_short_option (*iter);
+                    destroy_tokenizer (self);
                     return -1;
                 }
 
@@ -213,7 +217,14 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
                 }
                 
                 /* if no parameter is required, we can add the option now */
-                execute_callback (&token, opt_arr, opt_cnt, cb_data);
+                cb_rc = execute_callback (&token, (argc-arr_index), (argv+arr_index), 
+                        cb_data);
+                if (cb_rc < 0)
+                {
+                    destroy_tokenizer (self);
+                    return -1;
+                }
+                iter += cb_rc;
                 add_token (self, token);
             }
         }
@@ -240,7 +251,14 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
             }
 
             /* if no parameter is required, we can add the option now */
-            execute_callback (&token, opt_arr, opt_cnt, cb_data);
+            cb_rc = execute_callback (&token, (argc-arr_index), (argv+arr_index), 
+                    cb_data);
+            if (cb_rc < 0)
+            {
+                destroy_tokenizer (self);
+                return -1;
+            }
+            arr_index += cb_rc;
             add_token (self, token);
             continue;
         }
@@ -268,7 +286,14 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
         token.argv_param = iter;
 
         /* then add the taken to the tokenizer */
-        execute_callback (&token, opt_arr, opt_cnt, cb_data);
+        cb_rc = execute_callback (&token, (argc-arr_index), (argv+arr_index), 
+                cb_data);
+        if (cb_rc < 0)
+        {
+            destroy_tokenizer (self);
+            return -1;
+        }
+        arr_index += cb_rc;
         add_token (self, token);
     }
 
@@ -278,15 +303,14 @@ tokenize (struct tokenizer *self, char **argv, size_t argc,
 
 /* PRIVATE FILE-STATIC API */
 static int
-execute_callback (struct token *p_token, copt_t *opt_arr, size_t opt_cnt, 
-        void *cb_data)
+execute_callback (struct token *p_token, int argc, char **argv, void *cb_data)
 {
     if (p_token->opt->type != CALLBACK)
     {
         return 0;
     }
 
-    return p_token->opt->m.cb_fn (opt_arr, opt_cnt, cb_data);
+    return p_token->opt->m.cb_fn (argc, argv, p_token->opt, cb_data);
 }
 
 /* end of file */

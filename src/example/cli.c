@@ -15,8 +15,8 @@
 static copt_t *get_options (size_t *p_size, cli_results_t *cli_results);
 static copt_prog_t *get_program (copt_t *options, size_t option_count);
 
-static int help_cb (copt_t *opts, size_t opt_cnt, void *data);
-static int version_cb (copt_t *opts, size_t opt_cnt, void *data);
+static int help_cb (int argc, char **argv, copt_t *opt, void *cb_data);
+static int version_cb (int argc, char **argv, copt_t *opt, void *cb_data);
 
 static void help_page (FILE *output, copt_prog_t *data);
 static void version_page (FILE *output, copt_prog_t *data);
@@ -98,7 +98,7 @@ get_program (copt_t *opts, size_t opt_cnt)
     {
         .name             = "hemlock_argparser_ex",
         .description      = "Demonstration program for hemlock-argparser.",
-        .version          = "0.2.1",
+        .version          = "0.2.2",
 
         .copyright_year   = "2025",
         .copyright_holder = "The SoftFauna Team",
@@ -153,25 +153,28 @@ version_page (FILE *output, copt_prog_t *prog)
 
 /* CALLBACK */
 static int
-help_cb (copt_t *opts, size_t opt_cnt, void *data)
+help_cb (int argc, char **argv, copt_t *opt, void *cb_data)
 {
-    CB_UNUSED_PARAM (opts);
-    CB_UNUSED_PARAM (opt_cnt);
-
-    help_page (stdout, (copt_prog_t *)data);
+    CB_UNUSED_PARAM (argc);
+    CB_UNUSED_PARAM (argv);
+    CB_UNUSED_PARAM (opt);
+    
+    help_page (stdout, (copt_prog_t *)cb_data);
     exit (EXIT_SUCCESS);     
 }
 
 
 static int
-version_cb (copt_t *opts, size_t opt_cnt, void *data)
+version_cb (int argc, char **argv, copt_t *opt, void *cb_data)
 {
-    CB_UNUSED_PARAM (opts);
-    CB_UNUSED_PARAM (opt_cnt);
+    CB_UNUSED_PARAM (argc);
+    CB_UNUSED_PARAM (argv);
+    CB_UNUSED_PARAM (opt);
 
-    version_page (stdout, (copt_prog_t *)data);
+    version_page (stdout, (copt_prog_t *)cb_data);
     exit (EXIT_SUCCESS);     
 }
 
 
 /* end of file */
+
